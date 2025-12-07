@@ -1,10 +1,16 @@
 package taller
-import taller.Tipos._
+import taller.Tipos.{ProgRiego, _}
 
 class Riego {
 
-  def treg(f: Finca , i: Int): Int = {
-    f(i)._2
+  def tsup ( f : Finca , i : Int ) : Int = {
+    f ( i ) . _1
+  }
+  def treg ( f : Finca , i : Int ) : Int = {
+    f ( i ) . _2
+  }
+  def prio( f : Finca , i : Int ) : Int = {
+    f ( i ) . _3
   }
 
   def calculatiempoderiego(valores: Vector[Int], pi: ProgRiego, vector_final: Vector[Int], suma: Int): Vector[Int] = {
@@ -34,24 +40,28 @@ class Riego {
     val valores_organizados_tablones = mostrar_ordenreal((0 until f.length).toVector, pi, tiemposInicio)
     valores_organizados_tablones
   }
+
+  def costoRiegoTablon(i: Int, f: Finca, pi: ProgRiego): Int = {
+    // Calcula el costo de riego del tablón ival de la finca f
+    // según la programación de riego pi
+    val costoRiegoParcial = tsup(f,i) - tIR(f, pi)(i) - treg(f,i)
+    if (costoRiegoParcial >= 0) costoRiegoParcial else prio(f,i) * Math.abs(costoRiegoParcial)
+  }
+
+  def costoRiegoFinca(f: Finca, pi: ProgRiego): Int = {
+    pi.map(i => costoRiegoTablon(i, f, pi)).reduceLeft((acc,x) => acc + x)
+
+    }
 //
-//  def costoRiegoTablon(i: Int, f: Finca, pi: ProgRiego): Int = {
-//    // Calcula el costo de riego del tablón i de la finca f
-//    // según la programación de riego pi
-//
-//  }
-//
-//  def costoRiegoFinca(f: Finca, pi: ProgRiego): Int = {
-//    // Calcula el costo de riego total de la finca f
-//    // bajo la programación de riego pi
-//
-//  }
-//
-//  def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
-//    // Calcula el costo de movilidad para regar todos los tablones
-//    // según la programación pi y la matriz de distancias d
-//
-//  }
+  def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
+    // Calcula el costo de movilidad para regar todos los tablones
+    // según la programación pi y la matriz de distancias d
+    if (pi.length <= 1) 0
+    else
+      pi.zip(pi.tail)         // pares (pi0, pi1), (pi1,pi2), ...
+        .map { case (a, b) => d(a)(b) }
+        .sum
+  }
 
   def permutaciones(l: Vector[Int]): Vector[Vector[Int]] = l match {
     case Vector() => Vector(Vector.empty)
@@ -72,6 +82,24 @@ class Riego {
     perms
   }
 
+    def ProgramacionRiegoOptimo(f: Finca, d: Distancia): (ProgRiego, Int) = {
+  //    // Dada una finca devuelve la programación
+  //    // de riego óptima
+  val programaciones = generarProgramacionesRiego(f)
+
+      if (programaciones.isEmpty) (Vector.empty[Int], 0)
+      else {
+        programaciones
+          .map { pi =>
+            val cr = costoRiegoFinca(f, pi)
+            val cm = costoMovilidad(f, pi, d)
+            val total = cr + cm
+            (pi, total)
+          }
+          .minBy(_._2)    // escoger el que tenga costo mínimo
+      }
+        }
+
 //  def costoRiegoFincaPar(f: Finca, pi: ProgRiego): Int = {
 //    // Devuelve el costo total de regar una finca f dada una
 //    // programación de riego pi, calculando en paralelo
@@ -80,9 +108,5 @@ class Riego {
 //  def costoMovilidadPar(f: Finca, pi: ProgRiego, d: Distancia): Int = {
 //    // Calcula el costo de movilidad de manera paralela
 //  }
-//
-//  def ProgramacionRiegoOptimo(f: Finca, d: Distancia): (ProgRiego, Int) = {
-//    // Dada una finca devuelve la programación
-//    // de riego óptima
-//  }
+
 }
