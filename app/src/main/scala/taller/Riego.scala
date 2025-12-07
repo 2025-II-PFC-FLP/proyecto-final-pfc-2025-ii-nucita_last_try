@@ -49,9 +49,9 @@ class Riego {
   }
 
   def costoRiegoFinca(f: Finca, pi: ProgRiego): Int = {
-    pi.map(i => costoRiegoTablon(i, f, pi)).reduceLeft((acc,x) => acc + x)
-
-    }
+    val costoRiegoTotal = pi.map(i => costoRiegoTablon(i, f, pi))
+    costoRiegoTotal.sum
+  }
 //
   def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
     // Calcula el costo de movilidad para regar todos los tablones
