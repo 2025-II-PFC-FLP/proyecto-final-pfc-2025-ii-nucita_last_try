@@ -163,7 +163,7 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
       if(p.isEmpty) pi.filter(_._2 == min).head
       else minimo(p.tail, if (p.head._2 < min) p.head._2 else min, pi )
     }
-    val programaciones = generarProgramacionesRiego(f)
+    val programaciones = generarProgramacionesRiegopar(f)
     val (programacion1, programacion2) = programaciones.splitAt(math.ceil(f.length / 2).toInt)
 
 
