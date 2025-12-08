@@ -1,5 +1,6 @@
 package taller
 import taller.Tipos.{ProgRiego, _}
+import common._
 
 class Riego {
 
@@ -113,5 +114,32 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
 //  def costoMovilidadPar(f: Finca, pi: ProgRiego, d: Distancia): Int = {
 //    // Calcula el costo de movilidad de manera paralela
 //  }
+  def ProgramacionRiegoOptimoPar(f: Finca, d: Distancia): (ProgRiego, Int) = {
+    //    // Dada una finca devuelve la programación
+    //    // de riego óptima
 
+    def minimo(p:Vector[(ProgRiego,Int)], min:Int, pi : Vector[(ProgRiego,Int)]):(ProgRiego, Int) ={
+      if(p.isEmpty) pi.filter(_._2 == min).head
+      else minimo(p.tail, if (p.head._2 < min) p.head._2 else min, pi )
+    }
+    val programaciones = generarProgramacionesRiego(f)
+    val (programacion1, programacion2) = programaciones.splitAt(math.ceil(f.length / 2).toInt)
+
+
+    if (programaciones.isEmpty) (Vector.empty[Int], 0)
+    else {
+      val (p1,p2) = parallel( programacion1.map { pi =>
+        val cr = costoRiegoFinca(f, pi)
+        val cm = costoMovilidad(f, pi, d)
+        val total = cr + cm
+        (pi, total)
+      }, programacion2.map{ pi =>
+        val cr = costoRiegoFinca(f, pi)
+        val cm = costoMovilidad(f, pi, d)
+        val total = cr + cm
+        (pi, total)})
+      val (minimo1,minimo2) = parallel(minimo(p1.tail,p1.head._2, p1 ),minimo(p2.tail,p2.head._2, p2 ) )
+      if (minimo1._2 <= minimo2._2) minimo1 else minimo2
+    }
+  }
 }
