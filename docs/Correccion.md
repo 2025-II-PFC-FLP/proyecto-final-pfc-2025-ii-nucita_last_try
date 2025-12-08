@@ -1,8 +1,8 @@
-# 🧠 Demostración de Corrección – Funciones del Proyecto de Riego  
+# Demostración de Corrección – Funciones del Proyecto de Riego  
 
-# 1. ✔️ Demostración de corrección de `calculatiempoderiego`
+# 1. Demostración de corrección de `calculatiempoderiego`
 
-## 📘 Código analizado
+## Código analizado
 ```scala
 def calculatiempoderiego(valores: Vector[Int], pi: ProgRiego, vector_final: Vector[Int], suma: Int): Vector[Int] = {
   if (pi.isEmpty) vector_final
@@ -142,7 +142,7 @@ que coincide exactamente con la definición matemática.
 
 
 
-### 🧠 Explicación intuitiva de `mostrar_ordenreal`
+### Explicación intuitiva de `mostrar_ordenreal`
 
 - Esta función reordena los tiempos generados por `calculatiempoderiego`.
 - `vector_desorganizado` contiene los tiempos en el orden de aparición en la permutación `pi`.
@@ -153,7 +153,7 @@ que coincide exactamente con la definición matemática.
 
 ---
 
-### 🧠 Explicación intuitiva de `tIR`
+### Explicación intuitiva de `tIR`
 
 - Primero se extrae el tiempo de riego de cada tablón:  
   `valores_tr(i) = treg(f, i)`.
@@ -169,7 +169,7 @@ que coincide exactamente con la definición matemática.
 
 ---
 
-### ✔️ Conclusión intuitiva
+### Conclusión intuitiva
 
 - `calculatiempoderiego` calcula tiempos acumulados según el orden de riego.  
 - `mostrar_ordenreal` los mapea al índice correcto del tablón.  
@@ -309,8 +309,8 @@ La función `costoRiegoFinca` utiliza el paradigma de programación funcional me
 
 Aquí tienes la demostración para costoMovilidad siguiendo estrictamente el mismo formato académico y estructura Markdown lista para GitHub que usamos en los puntos anteriores.
 
-## 3. ✔️ Demostración de corrección de costoMovilidad
-📘 Código analizado
+## 3. Demostración de corrección de costoMovilidad
+Código analizado
 ```scala
 def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
   // Calcula el costo de movilidad para regar todos los tablones
@@ -397,7 +397,7 @@ Esto transforma la secuencia generada en una sumatoria total:
 
 
 $$
-\texttt{resultadoparcial.sum} = \sum_{i \in I_{validos}} d(\(pi(i)), \(pi(i+1))) = \sum_{i=0}^{n-2} \text{distancia}(\(pi(i)), \(pi(i+1)))
+\texttt{resultadoparcial.sum} = \sum_{i \in I_{validos}} d((pi(i)), (pi(i+1))) = \sum_{i=0}^{n-2} \text{distancia}((pi(i)), (pi(i+1)))
 $$
 
 
@@ -413,11 +413,11 @@ La función `costoMovilidad`:
 
 > **Por lo tanto, la implementación es correcta.**
 
-# 4. ✔️ Demostración de Algoritmos de Generación y Optimización
+# 4. Demostración de Algoritmos de Generación y Optimización
 
 ## 4.1. Demostración de `permutaciones`
 
-### 📘 Código analizado
+### Código analizado
 
 ```scala
 def permutaciones(l: Vector[Int]): Vector[Vector[Int]] = l match {
@@ -434,7 +434,7 @@ Aquí tienes el contenido convertido a formato Markdown optimizado para GitHub.H
 
 ## 4.1. Demostración de `permutaciones`
 
-### 📘 Código analizado
+### Código analizado
 
 ```scala
 def permutaciones(l: Vector[Int]): Vector[Vector[Int]] = l match {
@@ -487,7 +487,7 @@ Esta estructura coincide con la definición recursiva formal de las permutacione
 
 ## 4.2. Análisis de `generarProgramacionesRiego`
 
-### 📘 Código analizado (Scala)
+### Código analizado (Scala)
 ```scala
 def generarProgramacionesRiego(f: Finca): Vector[ProgRiego] = {
   val n = f.length
@@ -510,7 +510,7 @@ Esta función actúa como un adaptador para el problema específico de riego:
 
 ## 4.3. Demostración de ProgramacionRiegoOptimo
 
-### 📘 Código analizado (Scala)
+### Código analizado (Scala)
 ```scala
 def ProgramacionRiegoOptimo(f: Finca, d: Distancia): (ProgRiego, Int) = {
   

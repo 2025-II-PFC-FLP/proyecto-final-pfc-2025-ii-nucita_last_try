@@ -8,12 +8,13 @@
 
 ## 👥 Integrantes del Grupo
 
-| Nombre Completo             | Código    | Rol           | Correo Electrónico        |
-|-----------------------------|-----------|---------------| ------------------------- |
-| [Samuel Agudelo Sosa]       | 202459419 | [Colaborador] | [agudelo.samuel@correounivalle.edu.co] |
-| [Samuel Alvarado Acevedo]   | 202459469 | [Colaborador] | [samuel.alvarado@correounivalle.edu.co] |
+| Nombre Completo             | Código    | Rol           | Correo Electrónico                               |
+|-----------------------------|-----------|---------------|--------------------------------------------------|
+| [Samuel Agudelo Sosa]       | 202459419 | [Colaborador] | [agudelo.samuel@correounivalle.edu.co]           |
+| [Samuel Alvarado Acevedo]   | 202459469 | [Colaborador] | [samuel.alvarado@correounivalle.edu.co]          |
 | [Santiago Arboleda Vargas]  | 202459463 | [Colaborador] | [santiago.arboleda.vargas@correounivalle.edu.co] |
-| [Juan Manuel Gómez Álvarez] | 202459450 | [Colaborador] | [juan.m.gomez.a@correounivalle.edu.co] |
+| [Juan Manuel Gómez Álvarez] | 202459450 | [Colaborador] | [juan.m.gomez.a@correounivalle.edu.co]           |
+| [Sebastián Saenz Mejía]     | 202459528 | [Colaborador] | [saenz.sebastian@correounivalle.edu.co]          |
 
 ---
 
