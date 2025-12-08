@@ -53,27 +53,73 @@ $$CM_{F}^{\Pi} = \sum_{j=0}^{n-2} D[\pi_j, \pi_{j+1}]$$
 
 ```scala
 package taller
-import taller.Tipos._
+import taller.Tipos.{ProgRiego, _}
 
 class Riego {
 
-  // ... (Funciones auxiliares de acceso a tuplas)
+  def tsup ( f : Finca , i : Int ) : Int = {
+    f ( i ) . _1
+  }
+  def treg ( f : Finca , i : Int ) : Int = {
+    f ( i ) . _2
+  }
+  def prio( f : Finca , i : Int ) : Int = {
+    f ( i ) . _3
+  }
 
   def calculatiempoderiego(valores: Vector[Int], pi: ProgRiego, vector_final: Vector[Int], suma: Int): Vector[Int] = {
     if (pi.isEmpty) vector_final
     else calculatiempoderiego(valores, pi.tail, vector_final :+ suma, suma + valores(pi.head))
+
+  }
+
+  def mostrar_ordenreal(vector_orden: Vector[Int],orden_riego: ProgRiego, vector_desorganizado: Vector[Int]): Vector[Int] = {
+    val orden_real = (for {
+      i <- vector_orden
+      j <- orden_riego
+      if i == j
+    } yield vector_desorganizado(orden_riego.indexOf(j))).toVector
+    orden_real
   }
 
   def tIR(f: Finca, pi: ProgRiego): TiempoInicioRiego = {
-    val valores_tr = (for { i <- f.indices } yield treg(f , i) ).toVector
+    // Dada una finca f y una programación de riego pi,
+    // y f.length == n, tIR(f, pi) devuelve t: TiempoInicioRiego
+    // tal que t(i) es el tiempo en que inicia el riego del
+    // tablon i de la finca f según pi
+    val valores_tr = (for {
+      i <- f.indices
+    } yield treg(f , i) ).toVector
     val tiemposInicio = calculatiempoderiego(valores_tr, pi, Vector.empty, 0)
-    mostrar_ordenreal((0 until f.length).toVector, pi, tiemposInicio)
+    val valores_organizados_tablones = mostrar_ordenreal((0 until f.length).toVector, pi, tiemposInicio)
+    valores_organizados_tablones
   }
 
   def costoRiegoTablon(i: Int, f: Finca, pi: ProgRiego): Int = {
-     // Lógica condicional del costo de sufrimiento
-     val costo = tsup(f,i) - tIR(f, pi)(i) - treg(f,i)
-     if (costo >= 0) costo else prio(f,i) * Math.abs(costo)
+    // Calcula el costo de riego del tablón ival de la finca f
+    // según la programación de riego pi
+    val costoRiegoParcial = tsup(f,i) - tIR(f, pi)(i) - treg(f,i)
+    if (costoRiegoParcial >= 0) costoRiegoParcial else prio(f,i) * Math.abs(costoRiegoParcial)
+  }
+
+  def costoRiegoFinca(f: Finca, pi: ProgRiego): Int = {
+    val costoRiegoTotal = pi.map(i => costoRiegoTablon(i, f, pi))
+    costoRiegoTotal.sum
+  }
+  //
+  def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
+    // Calcula el costo de movilidad para regar todos los tablones
+    // según la programación pi y la matriz de distancias d
+    def auxCostoMovilidad(f: Finca, pi: ProgRiego, d: Distancia):Int ={
+      val resultado_parcial = for {
+        i <- pi.indices
+        if (i + 1) - f.length < 0
+      }yield d(pi(i))(pi(i+1))
+      resultado_parcial.sum
+
+    }
+    auxCostoMovilidad(f, pi, d )
+
   }
 
   def permutaciones(l: Vector[Int]): Vector[Vector[Int]] = l match {
@@ -86,23 +132,97 @@ class Riego {
       } yield i +: p
   }
 
-  def ProgramacionRiegoOptimo(f: Finca, d: Distancia): (ProgRiego, Int) = {
-      val programaciones = generarProgramacionesRiego(f)
-      programaciones
-          .map { pi => (pi, costoRiegoFinca(f, pi) + costoMovilidad(f, pi, d)) }
-          .minBy(_._2)
+  def generarProgramacionesRiego(f: Finca): Vector[ProgRiego] = {
+    // Dada una finca de n tablones, devuelve todas las
+    // posibles programaciones de riego de la finca
+    val n = f.length
+    val indices = (0 until n).toVector
+    val perms = permutaciones(indices)
+    perms
   }
+
+  def ProgramacionRiegoOptimo(f: Finca, d: Distancia): (ProgRiego, Int) = {
+    //    // Dada una finca devuelve la programación
+    //    // de riego óptima
+    val programaciones = generarProgramacionesRiego(f)
+
+    if (programaciones.isEmpty) (Vector.empty[Int], 0)
+    else {
+      programaciones
+        .map { pi =>
+          val cr = costoRiegoFinca(f, pi)
+          val cm = costoMovilidad(f, pi, d)
+          val total = cr + cm
+          (pi, total)
+        }
+        .minBy(_._2)    // escoger el que tenga costo mínimo
+    }
+  }
+
+  //  def costoRiegoFincaPar(f: Finca, pi: ProgRiego): Int = {
+  //    // Devuelve el costo total de regar una finca f dada una
+  //    // programación de riego pi, calculando en paralelo
+  //  }
+  //
+  //  def costoMovilidadPar(f: Finca, pi: ProgRiego, d: Distancia): Int = {
+  //    // Calcula el costo de movilidad de manera paralela
+  //  }
+
 }
+
 ```
 Estructura:
+### Funciones Auxiliares de Acceso (tsup, treg, prio)
+
+- `tsup`:
+    - Accede al **Tiempo de Supervivencia** (`_1`) del tablón $i$.
+    - Lectura directa de la primera componente de la tupla `f(i)`.
+
+- `treg`:
+    - Accede al **Tiempo de Riego** (`_2`) del tablón $i$.
+    - Lectura directa de la segunda componente de la tupla `f(i)`.
+
+- `prio`:
+    - Accede a la **Prioridad** (`_3`) del tablón $i$.
+    - Lectura directa de la tercera componente de la tupla `f(i)`.
+
 - `calculartiempoderiego`:
     - Es una función recursiva de cola.
     - Acumula el tiempo actual en `suma` y construye `vector_final` paso a paso.
+
+- `mostrar_ordenreal`:
+    - Reordena el vector de tiempos de inicio calculado (`vector_desorganizado`) para que cada tiempo esté asociado a su **índice de tablón original** (0, 1, 2, ...).
+    - Utiliza una **for-comprehension** anidada con un filtro (`if i == j`) para realizar el mapeo.
+    - Itera sobre los índices originales y la programación, buscando la posición del tablón en la programación para acceder al tiempo correspondiente en `vector_desorganizado`.
+
 - `tIR`:
     - Guía el cálculo. Extrae los tiempos de regado, llama a la recursión y luego reordena los resultados (utilizando `mostrar_ordenreal`) para que coincidan con los índices originales de la finca.
+
+- `costoRiegoTablon`:
+    - Calcula el **costo de sufrimiento** de un tablón individual $i$.
+    - Implementa una **lógica condicional** para el cálculo del costo:
+      - Si el tiempo de supervivencia (`tsup`) es suficiente, el costo es la diferencia restante (recompensa o costo mínimo).
+      - Si el tiempo de supervivencia se excede, aplica la **penalización** multiplicando el tiempo de déficit absoluto por la prioridad (`prio`).
+
+- `costoRiegoFinca`:
+    - Calcula el **Costo Total de Riego** para toda la finca $F$ dada la programación $\Pi$.
+    - Función de **Orden Superior** (Map y Reduce).
+    - Utiliza `.map` sobre la programación $\Pi$ para aplicar `costoRiegoTablon` a cada tablón, y luego utiliza `.sum` para reducir la colección al costo total.
+
+- `costoMovilidad`:
+    - Calcula el **Costo Total de Movilidad** incurrido al seguir el orden de riego $\Pi$ usando la matriz de distancias $D$.
+    - Utiliza una función auxiliar anidada (`auxCostoMovilidad`) con una **for-comprehension**.
+    - Itera sobre los índices de $\Pi$ para obtener pares consecutivos $(\Pi[i], \Pi[i+1])$ y accede a la distancia $D[\Pi[i], \Pi[i+1]]$. Finalmente, suma los resultados.
+
 - `permutaciones`:
     - Genera el espacio de búsqueda completo.
     - Utiliza la recursión de árbol: por cada elemento, genera las permutaciones del resto.
+
+- `generarProgramacionesRiego`:
+    - Genera el **espacio completo de soluciones** (todas las $\Pi$ posibles) para una finca $F$ de $n$ tablones.
+    - Función de **envoltorio**.
+    - Determina el tamaño $n$ de la finca, crea el vector de índices iniciales (`0 until n`) y llama a `permutaciones` para obtener el conjunto completo de programaciones.
+
 - `ProgramacionRiegoOptimo`:
     - Función de alto orden. Genera el espacio de estados, "mapea" cada estado a un costo total y "reduce" buscando el mínimo.
 
