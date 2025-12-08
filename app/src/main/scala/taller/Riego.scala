@@ -53,15 +53,20 @@ class Riego {
     costoRiegoTotal.sum
   }
 //
-  def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
-    // Calcula el costo de movilidad para regar todos los tablones
-    // según la programación pi y la matriz de distancias d
-    if (pi.length <= 1) 0
-    else
-      pi.zip(pi.tail)         // pares (pi0, pi1), (pi1,pi2), ...
-        .map { case (a, b) => d(a)(b) }
-        .sum
+def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
+  // Calcula el costo de movilidad para regar todos los tablones
+  // según la programación pi y la matriz de distancias d
+  def auxCostoMovilidad(f: Finca, pi: ProgRiego, d: Distancia):Int ={
+    val resultado_parcial = for {
+      i <- pi.indices
+      if (i + 1) - f.length < 0
+    }yield d(pi(i))(pi(i+1))
+    resultado_parcial.sum
+
   }
+  auxCostoMovilidad(f, pi, d )
+
+}
 
   def permutaciones(l: Vector[Int]): Vector[Vector[Int]] = l match {
     case Vector() => Vector(Vector.empty)
