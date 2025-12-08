@@ -139,7 +139,7 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
     costoMovilidadTotal
   }
   def permutacionespar(l: Vector[Int]): Vector[Vector[Int]] = {
-    val umbral = 6 // Bajo este número, el paralelismo no vale la pena por el overhead
+    val umbral = 7 // Bajo este número, el paralelismo no vale la pena por el overhead
 
     if (l.length <= umbral) {
       permutaciones(l) // Llama a tu versión secuencial normal
