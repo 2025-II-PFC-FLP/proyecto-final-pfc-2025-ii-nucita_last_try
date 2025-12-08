@@ -30,8 +30,8 @@ object BenchMarking {
     println(f"Aceleración (speedup): $speedup%.2f x")
   }
   def runAll(): Unit = {
-    bench(finca_pequeña,dist_pequeña, "Expresión pequeña")
-    bench(finca_mediana,dist_mediana, "Expresión mediana")
-    bench(finca_grande,dist_grande, "Expresión grande")
+    bench(finca_pequeña,dist_pequeña, "Finca pequeña")
+    bench(finca_mediana,dist_mediana, "Finca mediana")
+    bench(finca_grande,dist_grande, "Finca grande")
   }
 }
