@@ -165,6 +165,7 @@ Estructura:
 ## 4.1. Pila de llamados - calculatiempoderiego
 
 ```mermaid
+flowchart TD
 A0["calculatiempoderiego(val, pi=[0,1], acc=[], sum=0)"]
 A0 -->|Procesa pi.head=0, nuevo sum=0+10| A1["calculatiempoderiego(val, pi=[1], acc=[0], sum=10)"]
 A1 -->|Procesa pi.head=1, nuevo sum=10+20| A2["calculatiempoderiego(val, pi=[], acc=[0,10], sum=30)"]
@@ -176,6 +177,7 @@ A1 -.-> A0
 ## 4.2. Flujo de datos - tIR (Tiempo Inicio Riego)
 
 ```mermaid
+flowchart TD
 B0["tIR(f, pi=[1,0])"]
 B0 --> B1["Extraer treg: [tr0, tr1]"]
 B0 --> B2["calculatiempoderiego(..., pi=[1,0]...)"]
@@ -187,6 +189,7 @@ B4 --> B5["Resultado Final: [tr1, 0]"]
 ## 4.3. Pila de llamados - permutaciones
 
 ```mermaid
+flowchart TD
 C0["permutaciones([1, 2])"]
 
 C0 --> C1["Ramificación i = 1"]
@@ -211,6 +214,7 @@ C0 --> C15["Resultado Final: [[1, 2], [2, 1]]"]
 ## 4.4. Flujo de Proceso - costoMovilidad
 
 ```mermaid
+flowchart TD
 D0["costoMovilidad(f, pi=[0,2,1], d)"]
 D0 --> D1["Llama auxCostoMovilidad (bucle for/yield)"]
 D1 --> D2["Iteración 1 (i=0): par (pi[0], pi[1]) -> (0, 2)"]
@@ -225,6 +229,7 @@ D7 --> D8["Retorna Total"]
 ## 4.5. Proceso General - ProgramacionRiegoOptimo
 
 ```mermaid
+flowchart TD
 E0["ProgramacionRiegoOptimo(f, d)"]
 E0 --> E1["generarProgramacionesRiego(f)"]
 E1 --> E2["Obtiene Vector de Permutaciones: [P1, P2, ..., Pn]"]
