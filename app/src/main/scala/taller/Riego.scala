@@ -160,4 +160,31 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
       if (minimo1._2 <= minimo2._2) minimo1 else minimo2
     }
   }
+
+  def costoRiegoFincaPar(f: Finca, pi: ProgRiego): Int = {
+    //    // Devuelve el costo total de regar una finca f dada una
+    //    // programación de riego pi, calculando en paralelo
+    val (pi1,pi2) = pi.splitAt(Math.ceil(pi.length/2).toInt)
+    val (costoRiegoParcial1,costoRiegoParcial2) = parallel(pi1.map(i => costoRiegoTablon(i, f, pi)).sum,pi2.map(i => costoRiegoTablon(i, f, pi)).sum)
+    val costoRiegoTotal = costoRiegoParcial1 + costoRiegoParcial2
+    costoRiegoTotal
+  }
+  //
+  def costoMovilidadPar(f: Finca, pi: ProgRiego, d: Distancia): Int = {
+    // Calcula el costo de movilidad de manera paralela
+    // Calcula el costo de movilidad para regar todos los tablones
+    // según la programación pi y la matriz de distancias d
+    def auxCostoMovilidad(f: Finca, pi: ProgRiego, d: Distancia):Int ={
+      val resultado_parcial = for {
+        i <- pi.indices
+        if (i + 1) - pi.length < 0
+      }yield d(pi(i))(pi(i+1))
+      resultado_parcial.sum
+
+    }
+    val (pi1,pi2) = pi.splitAt(Math.ceil(pi.length/2).toInt)
+    val (costoParcial1, costoParcial2) = parallel(auxCostoMovilidad(f, pi1, d ), auxCostoMovilidad(f, pi2, d ))
+    val costoMovilidadTotal  = costoParcial1 + costoParcial2 + d(pi1(pi1.length-1))(pi2(0))
+    costoMovilidadTotal
+  }
 }
