@@ -139,7 +139,7 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
     costoMovilidadTotal
   }
   def permutacionespar(l: Vector[Int]): Vector[Vector[Int]] = {
-    val umbral = 7 // Bajo este número, el paralelismo no vale la pena por el overhead
+    val umbral = 6 // Bajo este número, el paralelismo no vale la pena por el overhead
 
     if (l.length <= umbral) {
       permutaciones(l) 
@@ -174,7 +174,7 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
       else minimo(p.tail, if (p.head._2 < min) p.head._2 else min, pi )
     }
     val programaciones = generarProgramacionesRiegopar(f)
-    val (programacion1, programacion2) = programaciones.splitAt(math.ceil(f.length / 2).toInt)
+    val (programacion1, programacion2) = programaciones.splitAt(math.ceil(programaciones.length / 2).toInt)
 
 
     if (programaciones.isEmpty) (Vector.empty[Int], 0)
