@@ -1,6 +1,7 @@
 package taller
 import taller.Tipos.{ProgRiego, _}
 import common._
+import scala.collection.parallel.CollectionConverters._
 
 class Riego {
 
@@ -114,6 +115,23 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
 //  def costoMovilidadPar(f: Finca, pi: ProgRiego, d: Distancia): Int = {
 //    // Calcula el costo de movilidad de manera paralela
 //  }
+  def permutacionespar(l: Vector[Int]): Vector[Vector[Int]] = l match {
+    case Vector() => Vector(Vector.empty)
+    case _ =>
+      (for {
+        i <- l.par
+        resto = l.filter(_ != i)
+        p <- permutaciones(resto)
+      } yield i +: p).toVector
+  }
+    def generarProgramacionesRiegopar(f: Finca): Vector[ProgRiego] = {
+      // Dada una finca de n tablones, devuelve todas las
+      // posibles programaciones de riego de la finca
+      val n = f.length
+      val indices = (0 until n).toVector
+      val perms = permutacionespar(indices)
+      perms
+    }
   def ProgramacionRiegoOptimoPar(f: Finca, d: Distancia): (ProgRiego, Int) = {
     //    // Dada una finca devuelve la programación
     //    // de riego óptima
