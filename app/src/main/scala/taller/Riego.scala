@@ -138,14 +138,24 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
     val costoMovilidadTotal  = costoParcial1 + costoParcial2 + d(pi1(pi1.length-1))(pi2(0))
     costoMovilidadTotal
   }
-  def permutacionespar(l: Vector[Int]): Vector[Vector[Int]] = l match {
-    case Vector() => Vector(Vector.empty)
-    case _ =>
-      (for {
-        i <- l.par
-        resto = l.filter(_ != i)
-        p <- permutaciones(resto)
-      } yield i +: p).toVector
+  def permutacionespar(l: Vector[Int]): Vector[Vector[Int]] = {
+    val umbral = 6 // Bajo este número, el paralelismo no vale la pena por el overhead
+
+    if (l.length <= umbral) {
+      permutaciones(l) // Llama a tu versión secuencial normal
+    } else {
+      l match {
+        case Vector() => Vector(Vector.empty)
+        case _ =>
+          (for {
+            i <- l.par // Paralelizamos este nivel
+            resto = l.filter(_ != i)
+            // Aquí está la clave: llamamos recursivamente a la versión PARALELA
+            // pero el 'if' del inicio evitará que creemos hilos infinitos
+            p <- permutacionespar(resto)
+          } yield i +: p).toVector
+      }
+    }
   }
     def generarProgramacionesRiegopar(f: Finca): Vector[ProgRiego] = {
       // Dada una finca de n tablones, devuelve todas las
