@@ -142,7 +142,7 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
     val umbral = 7 // Bajo este número, el paralelismo no vale la pena por el overhead
 
     if (l.length <= umbral) {
-      permutaciones(l) // Llama a tu versión secuencial normal
+      permutaciones(l) 
     } else {
       l match {
         case Vector() => Vector(Vector.empty)
