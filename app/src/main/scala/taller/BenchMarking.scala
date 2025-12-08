@@ -6,11 +6,11 @@ object BenchMarking {
   val riego = new Riego()
   val generador = new Generador_aleatorio()
   val finca_pequeña = generador.fincaAlAzar(5)
-  val finca_mediana = generador.fincaAlAzar(8)
-  val finca_grande = generador.fincaAlAzar(10)
+  val finca_mediana = generador.fincaAlAzar(9)
+  val finca_grande = generador.fincaAlAzar(11)
   val dist_pequeña = generador.distanciaAlAzar(5)
-  val dist_mediana = generador.distanciaAlAzar(8)
-  val dist_grande = generador.distanciaAlAzar(10)
+  val dist_mediana = generador.distanciaAlAzar(9)
+  val dist_grande = generador.distanciaAlAzar(11)
 
   def bench(f: Finca, d: Distancia, name: String): Unit = {
     println(s"\n--- Benchmark: $name ---")
