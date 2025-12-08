@@ -2,6 +2,7 @@ package taller
 import taller.Tipos.{ProgRiego, _}
 import common._
 import scala.collection.parallel.CollectionConverters._
+import scala.annotation.tailrec
 
 class Riego {
 
@@ -14,8 +15,8 @@ class Riego {
   def prio( f : Finca , i : Int ) : Int = {
     f ( i ) . _3
   }
-
-  def calculatiempoderiego(valores: Vector[Int], pi: ProgRiego, vector_final: Vector[Int], suma: Int): Vector[Int] = {
+  @tailrec
+  private def calculatiempoderiego(valores: Vector[Int], pi: ProgRiego, vector_final: Vector[Int], suma: Int): Vector[Int] = {
     if (pi.isEmpty) vector_final
     else calculatiempoderiego(valores, pi.tail, vector_final :+ suma, suma + valores(pi.head))
 
@@ -89,32 +90,54 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
     perms
   }
 
-    def ProgramacionRiegoOptimo(f: Finca, d: Distancia): (ProgRiego, Int) = {
-  //    // Dada una finca devuelve la programación
-  //    // de riego óptima
-  val programaciones = generarProgramacionesRiego(f)
+  def ProgramacionRiegoOptimo(f: Finca, d: Distancia): (ProgRiego, Int) = {
+    //    // Dada una finca devuelve la programación
+    //    // de riego óptima
+    @tailrec
+    def minimo(p:Vector[(ProgRiego,Int)], min:Int, pi : Vector[(ProgRiego,Int)]):(ProgRiego, Int) ={
+      if(p.isEmpty) pi.filter(_._2 == min).head
+      else minimo(p.tail, if (p.head._2 < min) p.head._2 else min, pi )
+    }
+    val programaciones = generarProgramacionesRiego(f)
 
-      if (programaciones.isEmpty) (Vector.empty[Int], 0)
-      else {
-        programaciones
-          .map { pi =>
-            val cr = costoRiegoFinca(f, pi)
-            val cm = costoMovilidad(f, pi, d)
-            val total = cr + cm
-            (pi, total)
-          }
-          .minBy(_._2)    // escoger el que tenga costo mínimo
+    if (programaciones.isEmpty) (Vector.empty[Int], 0)
+    else {
+      val p = programaciones.map { pi =>
+        val cr = costoRiegoFinca(f, pi)
+        val cm = costoMovilidad(f, pi, d)
+        val total = cr + cm
+        (pi, total)
       }
-        }
+      minimo(p.tail,p.head._2, p )
+    }
+  }
 
-//  def costoRiegoFincaPar(f: Finca, pi: ProgRiego): Int = {
-//    // Devuelve el costo total de regar una finca f dada una
-//    // programación de riego pi, calculando en paralelo
-//  }
-//
-//  def costoMovilidadPar(f: Finca, pi: ProgRiego, d: Distancia): Int = {
-//    // Calcula el costo de movilidad de manera paralela
-//  }
+  def costoRiegoFincaPar(f: Finca, pi: ProgRiego): Int = {
+    //    // Devuelve el costo total de regar una finca f dada una
+    //    // programación de riego pi, calculando en paralelo
+    val (pi1,pi2) = pi.splitAt(Math.ceil(pi.length/2).toInt)
+    val (costoRiegoParcial1,costoRiegoParcial2) = parallel(pi1.map(i => costoRiegoTablon(i, f, pi)).sum,pi2.map(i => costoRiegoTablon(i, f, pi)).sum)
+    val costoRiegoTotal = costoRiegoParcial1 + costoRiegoParcial2
+    costoRiegoTotal
+  }
+
+  def costoMovilidadPar(f: Finca, pi: ProgRiego, d: Distancia): Int = {
+    // Calcula el costo de movilidad de manera paralela
+    // Calcula el costo de movilidad para regar todos los tablones
+    // según la programación pi y la matriz de distancias d
+    def auxCostoMovilidad(f: Finca, pi: ProgRiego, d: Distancia):Int ={
+      val resultado_parcial = for {
+        i <- pi.indices
+        if (i + 1) - pi.length < 0
+      }yield d(pi(i))(pi(i+1))
+      resultado_parcial.sum
+
+    }
+    val (pi1,pi2) = pi.splitAt(Math.ceil(pi.length/2).toInt)
+    val (costoParcial1, costoParcial2) = parallel(auxCostoMovilidad(f, pi1, d ), auxCostoMovilidad(f, pi2, d ))
+    val costoMovilidadTotal  = costoParcial1 + costoParcial2 + d(pi1(pi1.length-1))(pi2(0))
+    costoMovilidadTotal
+  }
   def permutacionespar(l: Vector[Int]): Vector[Vector[Int]] = l match {
     case Vector() => Vector(Vector.empty)
     case _ =>
@@ -135,7 +158,7 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
   def ProgramacionRiegoOptimoPar(f: Finca, d: Distancia): (ProgRiego, Int) = {
     //    // Dada una finca devuelve la programación
     //    // de riego óptima
-
+    @tailrec
     def minimo(p:Vector[(ProgRiego,Int)], min:Int, pi : Vector[(ProgRiego,Int)]):(ProgRiego, Int) ={
       if(p.isEmpty) pi.filter(_._2 == min).head
       else minimo(p.tail, if (p.head._2 < min) p.head._2 else min, pi )
@@ -147,13 +170,13 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
     if (programaciones.isEmpty) (Vector.empty[Int], 0)
     else {
       val (p1,p2) = parallel( programacion1.map { pi =>
-        val cr = costoRiegoFinca(f, pi)
-        val cm = costoMovilidad(f, pi, d)
+        val cr = costoRiegoFincaPar(f, pi)
+        val cm = costoMovilidadPar(f, pi, d)
         val total = cr + cm
         (pi, total)
       }, programacion2.map{ pi =>
-        val cr = costoRiegoFinca(f, pi)
-        val cm = costoMovilidad(f, pi, d)
+        val cr = costoRiegoFincaPar(f, pi)
+        val cm = costoMovilidadPar(f, pi, d)
         val total = cr + cm
         (pi, total)})
       val (minimo1,minimo2) = parallel(minimo(p1.tail,p1.head._2, p1 ),minimo(p2.tail,p2.head._2, p2 ) )
@@ -161,30 +184,5 @@ def costoMovilidad(f: Finca, pi: ProgRiego, d: Distancia): Int = {
     }
   }
 
-  def costoRiegoFincaPar(f: Finca, pi: ProgRiego): Int = {
-    //    // Devuelve el costo total de regar una finca f dada una
-    //    // programación de riego pi, calculando en paralelo
-    val (pi1,pi2) = pi.splitAt(Math.ceil(pi.length/2).toInt)
-    val (costoRiegoParcial1,costoRiegoParcial2) = parallel(pi1.map(i => costoRiegoTablon(i, f, pi)).sum,pi2.map(i => costoRiegoTablon(i, f, pi)).sum)
-    val costoRiegoTotal = costoRiegoParcial1 + costoRiegoParcial2
-    costoRiegoTotal
-  }
-  //
-  def costoMovilidadPar(f: Finca, pi: ProgRiego, d: Distancia): Int = {
-    // Calcula el costo de movilidad de manera paralela
-    // Calcula el costo de movilidad para regar todos los tablones
-    // según la programación pi y la matriz de distancias d
-    def auxCostoMovilidad(f: Finca, pi: ProgRiego, d: Distancia):Int ={
-      val resultado_parcial = for {
-        i <- pi.indices
-        if (i + 1) - pi.length < 0
-      }yield d(pi(i))(pi(i+1))
-      resultado_parcial.sum
 
-    }
-    val (pi1,pi2) = pi.splitAt(Math.ceil(pi.length/2).toInt)
-    val (costoParcial1, costoParcial2) = parallel(auxCostoMovilidad(f, pi1, d ), auxCostoMovilidad(f, pi2, d ))
-    val costoMovilidadTotal  = costoParcial1 + costoParcial2 + d(pi1(pi1.length-1))(pi2(0))
-    costoMovilidadTotal
-  }
 }
