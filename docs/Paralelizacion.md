@@ -45,7 +45,7 @@ Para generar permutaciones:
 for {
   i <- l.par
   resto = l.filter(_ != i)
-  p <- permutaciones(resto)
+  p <- permutacionespar(resto)
 } yield i +: p
 ```
 
@@ -95,7 +95,7 @@ Se usa `.par` para paralelizar la elección del elemento fijo en cada nivel de r
 for {
   i <- l.par
   resto = l.filter(_ != i)
-  p <- permutaciones(resto)
+  p <- permutacionespar(resto)
 } yield i +: p
 ```
 
